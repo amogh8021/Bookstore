@@ -1,0 +1,136 @@
+[
+  {
+    "id": 1,
+    "title": "The Alchemist",
+    "author": "Paulo Coelho",
+    "price": 499,
+    "image": "https://m.media-amazon.com/images/I/51Z0nLAfLmL.jpg"
+  },
+  {
+    "id": 2,
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "price": 399,
+    "image": "https://m.media-amazon.com/images/I/81bGKUa1e0L.jpg"
+  },
+  {
+    "id": 3,
+    "title": "Ikigai",
+    "author": "Héctor García",
+    "price": 299,
+    "image": "https://m.media-amazon.com/images/I/71tbalAHYCL.jpg"
+  },
+  {
+    "id": 4,
+    "title": "Rich Dad Poor Dad",
+    "author": "Robert Kiyosaki",
+    "price": 350,
+    "image": "https://m.media-amazon.com/images/I/81bsw6fnUiL.jpg"
+  },
+  {
+    "id": 5,
+    "title": "Think and Grow Rich",
+    "author": "Napoleon Hill",
+    "price": 280,
+    "image": "https://m.media-amazon.com/images/I/71UypkUjStL.jpg"
+  },
+  {
+    "id": 6,
+    "title": "The Power of Now",
+    "author": "Eckhart Tolle",
+    "price": 420,
+    "image": "https://m.media-amazon.com/images/I/71XxJNTk4hL.jpg"
+  },
+  {
+    "id": 7,
+    "title": "Sapiens",
+    "author": "Yuval Noah Harari",
+    "price": 550,
+    "image": "https://m.media-amazon.com/images/I/713jIoMO3UL.jpg"
+  },
+  {
+    "id": 8,
+    "title": "Homo Deus",
+    "author": "Yuval Noah Harari",
+    "price": 520,
+    "image": "https://m.media-amazon.com/images/I/71g2ednj0JL.jpg"
+  },
+  {
+    "id": 9,
+    "title": "21 Lessons for the 21st Century",
+    "author": "Yuval Noah Harari",
+    "price": 480,
+    "image": "https://m.media-amazon.com/images/I/81qlvob+gaL.jpg"
+  },
+  {
+    "id": 10,
+    "title": "The Psychology of Money",
+    "author": "Morgan Housel",
+    "price": 370,
+    "image": "https://m.media-amazon.com/images/I/81-QB7nDh4L.jpg"
+  },
+  {
+    "id": 11,
+    "title": "Sample Book 11",
+    "author": "Author 11",
+    "price": 255,
+    "image": "https://placehold.co/200x300?text=Book+11"
+  },
+  {
+    "id": 12,
+    "title": "Sample Book 12",
+    "author": "Author 12",
+    "price": 260,
+    "image": "https://placehold.co/200x300?text=Book+12"
+  },
+  {
+    "id": 13,
+    "title": "Sample Book 13",
+    "author": "Author 13",
+    "price": 265,
+    "image": "https://placehold.co/200x300?text=Book+13"
+  },
+  {
+    "id": 14,
+    "title": "Sample Book 14",
+    "author": "Author 14",
+    "price": 270,
+    "image": "https://placehold.co/200x300?text=Book+14"
+  },
+  {
+    "id": 15,
+    "title": "Sample Book 15",
+    "author": "Author 15",
+    "price": 275,
+    "image": "https://placehold.co/200x300?text=Book+15"
+  },
+  {
+    "id": 16,
+    "title": "Sample Book 16",
+    "author": "Author 16",
+    "price": 280,
+    "image": "https://placehold.co/200x300?text=Book+16"
+  },
+  {
+    "id": 17,
+    "title": "Sample Book 17",
+    "author": "Author 17",
+    "price": 285,
+    "image": "https://placehold.co/200x300?text=Book+17"
+  },
+  {
+    "id": 18,
+    "title": "Sample Book 18",
+    "author": "Author 18",
+    "price": 290,
+    "image": "https://placehold.co/200x300?text=Book+18"
+  },
+  {
+    "id": 19,
+    "title": "Sample Book 19",
+    "author": "Author 19",
+    "price": 295,
+    "image": "https://placehold.co/200x300?text=Book+19"
+  }
+ 
+]
