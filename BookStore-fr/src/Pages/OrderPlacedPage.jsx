@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { jsPDF } from "jspdf";
+import { createRazorpayOrder, verifyPayment, getKey } from "../Services/paymentService";
+import { toast } from "react-toastify";
 
 const OrderPlacedPage = () => {
   const { orderId } = useParams();
@@ -42,70 +44,122 @@ const OrderPlacedPage = () => {
 
   if (!order || !order.item) return null;
 
-  
+
   const subtotal = Number(order.subTotal ?? 0);
   const discountAmount = Number(order.discountAmount ?? 0);
   const finalTotal = Number(order.totalPayable ?? 0);
 
 
-const downloadReceipt = () => {
-  if (!order) return;
+  const downloadReceipt = () => {
+    if (!order) return;
 
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "pt",
-    format: "a4",
-  });
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4",
+    });
 
-  // Force clean font
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(14);
+    // Force clean font
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(14);
 
-  let y = 40;
+    let y = 40;
 
-  doc.text("ORDER RECEIPT", 300, y, { align: "center" });
-  y += 30;
+    doc.text("ORDER RECEIPT", 300, y, { align: "center" });
+    y += 30;
 
-  doc.setFontSize(11);
-  doc.text(`Order ID: ${order.id}`, 40, y); y += 18;
-  doc.text(`Date: ${new Date(order.orderDate).toLocaleString()}`, 40, y); y += 18;
-  doc.text(`Status: ${order.status}`, 40, y); y += 18;
+    doc.setFontSize(11);
+    doc.text(`Order ID: ${order.id}`, 40, y); y += 18;
+    doc.text(`Date: ${new Date(order.orderDate).toLocaleString()}`, 40, y); y += 18;
+    doc.text(`Status: ${order.status}`, 40, y); y += 18;
 
-  if (order.appliedCoupon) {
-    doc.text(`Applied Coupon: ${order.appliedCoupon}`, 40, y);
-    y += 18;
-  }
+    if (order.appliedCoupon) {
+      doc.text(`Applied Coupon: ${order.appliedCoupon}`, 40, y);
+      y += 18;
+    }
 
-  y += 10;
-  doc.text("Items:", 40, y);
-  y += 15;
+    y += 10;
+    doc.text("Items:", 40, y);
+    y += 15;
 
-  order.item.forEach((item) => {
-    const price = Number(item.pricePerUnit ?? item.book?.price ?? 0);
-    const qty = item.quantity ?? 0;
-    const finalPrice = Number(item.finalPrice ?? price * qty);
+    order.item.forEach((item) => {
+      const price = Number(item.pricePerUnit ?? item.book?.price ?? 0);
+      const qty = item.quantity ?? 0;
+      const finalPrice = Number(item.finalPrice ?? price * qty);
 
-    const line = `${item.book?.title} - Rs ${price.toFixed(2)} x ${qty} = Rs ${finalPrice.toFixed(2)}`;
+      const line = `${item.book?.title} - Rs ${price.toFixed(2)} x ${qty} = Rs ${finalPrice.toFixed(2)}`;
 
-    // 👇 THIS fixes spacing issues
-    const wrappedText = doc.splitTextToSize(line, 500);
-    doc.text(wrappedText, 40, y);
-    y += wrappedText.length * 14;
-  });
+      // 👇 THIS fixes spacing issues
+      const wrappedText = doc.splitTextToSize(line, 500);
+      doc.text(wrappedText, 40, y);
+      y += wrappedText.length * 14;
+    });
 
-  y += 15;
-  doc.text(`Subtotal: Rs ${subtotal.toFixed(2)}`, 40, y); y += 16;
+    y += 15;
+    doc.text(`Subtotal: Rs ${subtotal.toFixed(2)}`, 40, y); y += 16;
 
-  if (discountAmount > 0) {
-    doc.text(`Discount: - Rs ${discountAmount.toFixed(2)}`, 40, y);
-    y += 16;
-  }
+    if (discountAmount > 0) {
+      doc.text(`Discount: - Rs ${discountAmount.toFixed(2)}`, 40, y);
+      y += 16;
+    }
 
-  doc.setFontSize(12);
-  doc.text(`Total Payable: Rs ${finalTotal.toFixed(2)}`, 40, y);
+    doc.setFontSize(12);
+    doc.text(`Total Payable: Rs ${finalTotal.toFixed(2)}`, 40, y);
 
-  doc.save(`Order_${order.id}_Receipt.pdf`);
-};
+    doc.save(`Order_${order.id}_Receipt.pdf`);
+  };
+
+  const handlePaymentRetry = async () => {
+    if (!order) return;
+    try {
+      const amount = Math.round(finalTotal);
+      const paymentResponse = await createRazorpayOrder(amount);
+      const razorpayOrder = JSON.parse(paymentResponse.data);
+
+      const keyResponse = await getKey();
+      const key = keyResponse.data;
+
+      const options = {
+        key: key,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        name: "BookStore",
+        description: `Retry Order #${order.id}`,
+        order_id: razorpayOrder.id,
+        handler: async function (response) {
+          try {
+            const verifyData = {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              db_order_id: order.id
+            };
+            await verifyPayment(verifyData);
+            toast.success("Payment Successful!");
+            window.location.reload();
+          } catch (err) {
+            console.error(err);
+            toast.error("Payment verification failed");
+          }
+        },
+        prefill: {
+          name: "User",
+          email: "user@example.com",
+          contact: "9999999999"
+        },
+        theme: { color: "#3399cc" }
+      };
+
+      const rzp1 = new window.Razorpay(options);
+      rzp1.on('payment.failed', function (response) {
+        toast.error("Payment Failed: " + response.error.description);
+      });
+      rzp1.open();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to initiate payment retry");
+    }
+  };
 
 
   return (
@@ -114,11 +168,23 @@ const downloadReceipt = () => {
 
       <div className="max-w-3xl mx-auto mt-10 bg-white p-6 lg:p-10 rounded-xl shadow-md">
         {/* Success */}
+        {/* Success / Pending Message */}
         <div className="flex flex-col items-center gap-4 text-center">
-          <AiOutlineCheckCircle className="text-green-500 text-6xl" />
-          <h1 className="text-3xl font-bold">Order Placed Successfully</h1>
+          {order.status === 'COMPLETED' || order.status === 'CONFIRMED' ? (
+            <AiOutlineCheckCircle className="text-green-500 text-6xl" />
+          ) : (
+            <div className="text-orange-500 text-6xl">⚠️</div>
+          )}
+
+          <h1 className="text-3xl font-bold">
+            {order.status === 'COMPLETED' || order.status === 'CONFIRMED'
+              ? "Order Placed Successfully"
+              : "Order Pending Payment"}
+          </h1>
           <p className="text-gray-600">
-            Thank you for shopping with us 🎉
+            {order.status === 'COMPLETED' || order.status === 'CONFIRMED'
+              ? "Thank you for shopping with us 🎉"
+              : "Please complete your payment to confirm the order."}
           </p>
         </div>
 
@@ -173,7 +239,7 @@ const downloadReceipt = () => {
                       {item.book?.title}
                     </p>
                     <p className="text-gray-500">
-                     Rs{pricePerUnit.toFixed(2)} × {qty}
+                      Rs{pricePerUnit.toFixed(2)} × {qty}
                     </p>
                     {itemDiscount > 0 && (
                       <p className="text-green-600 text-xs">
@@ -185,15 +251,15 @@ const downloadReceipt = () => {
                     {itemDiscount > 0 ? (
                       <>
                         <p className="line-through text-gray-400 text-xs">
-                         Rs{itemTotal.toFixed(2)}
+                          Rs{itemTotal.toFixed(2)}
                         </p>
                         <p className="font-medium">
-                         Rs{itemFinalPrice.toFixed(2)}
+                          Rs{itemFinalPrice.toFixed(2)}
                         </p>
                       </>
                     ) : (
                       <p className="font-medium">
-                       Rs{itemTotal.toFixed(2)}
+                        Rs{itemTotal.toFixed(2)}
                       </p>
                     )}
                   </div>
@@ -232,7 +298,16 @@ const downloadReceipt = () => {
             Continue Shopping
           </button>
 
-           <button
+          {(order.status === 'PENDING' || order.status === 'CREATED') && (
+            <button
+              onClick={handlePaymentRetry}
+              className="w-full bg-accent hover:bg-yellow-600 text-slate-900 font-bold py-3 rounded-lg transition-all shadow-md"
+            >
+              Complete Payment
+            </button>
+          )}
+
+          <button
             onClick={downloadReceipt}
             className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
           >
@@ -246,8 +321,8 @@ const downloadReceipt = () => {
             View My Orders
           </button>
 
-         
-          
+
+
         </div>
       </div>
     </div>

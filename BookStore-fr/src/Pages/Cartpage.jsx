@@ -5,6 +5,7 @@ import { MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { getCart, removeFromCart, updateQuantity, clearCart, applyCoupon } from "../Services/cartService";
 import { createOrder } from "../Services/orderService";
+import { createRazorpayOrder, verifyPayment, getKey } from "../Services/paymentService";
 import { toast } from "react-toastify";
 
 const CartPage = () => {
@@ -236,8 +237,70 @@ const CartPage = () => {
                 return;
               }
               try {
-                const response = await createOrder();
-                navigate(`/order/${response.data.id}`);
+                // 1. Create Order in Backend (PENDING)
+                const orderResponse = await createOrder();
+                const order = orderResponse.data;
+                const orderId = order.id;
+
+                // 2. Create Razorpay Order
+                // Use grandTotal (ensure it's an integer for backend if needed, but backend takes int amount)
+                // Backend expects amount in IDR? No, ensure we pass correct amount.
+                // My backend multiplies by 100, so I should pass amount in Rs.
+                const amount = Math.round(grandTotal);
+                const paymentResponse = await createRazorpayOrder(amount);
+
+                // Parse Razorpay Order info (it returns stringified JSON or object depending on backend implementation)
+                // My backend returns order.toString(), which is stringified JSON.
+                const razorpayOrder = JSON.parse(paymentResponse.data);
+
+                // Fetch Key from Backend
+                const keyResponse = await getKey();
+                const key = keyResponse.data;
+
+                // 3. Open Razorpay Checkout
+                const options = {
+                  key: key,
+                  amount: razorpayOrder.amount,
+                  currency: razorpayOrder.currency,
+                  name: "BookStore",
+                  description: `Order #${orderId}`,
+                  order_id: razorpayOrder.id,
+                  handler: async function (response) {
+                    try {
+                      // 4. Verify Payment
+                      const verifyData = {
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        db_order_id: orderId
+                      };
+
+                      await verifyPayment(verifyData);
+                      toast.success("Payment Successful!");
+                      navigate(`/order/${orderId}`);
+                    } catch (err) {
+                      console.error(err);
+                      toast.error("Payment verification failed");
+                      navigate(`/order/${orderId}`); // Navigate anyway, status might be PENDING/CANCELLED
+                    }
+                  },
+                  prefill: {
+                    name: "User", // Can fetch from user profile
+                    email: "user@example.com",
+                    contact: "9999999999"
+                  },
+                  theme: {
+                    color: "#3399cc"
+                  }
+                };
+
+                const rzp1 = new window.Razorpay(options);
+                rzp1.on('payment.failed', function (response) {
+                  toast.error("Payment Failed: " + response.error.description);
+                  navigate(`/order/${orderId}`);
+                });
+                rzp1.open();
+
               } catch (err) {
                 console.error(err);
                 toast.error("Order placement failed. Try again.");
@@ -245,7 +308,7 @@ const CartPage = () => {
             }}
             className="w-full mt-8 bg-accent hover:bg-yellow-600 text-slate-900 font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
           >
-            Proceed to Checkout
+            Proceed to Pay  ₹{grandTotal.toFixed(2)}
           </button>
         </div>
       </div>

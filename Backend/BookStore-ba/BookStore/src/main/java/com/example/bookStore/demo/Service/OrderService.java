@@ -158,4 +158,16 @@ public class OrderService {
     public Page<Order> getCancelledOrders(int page, int size) {
         return getOrderByStatus(Status.CANCELLED, page, size);
     }
+
+    // ✅ Update Payment Status
+    public void updatePaymentStatus(Long orderId, String paymentId, String status) {
+        Order order = getOrderById(orderId);
+        if ("PAID".equalsIgnoreCase(status)) {
+            order.setStatus(Status.COMPLETED); // Or CONFIRMED
+            // order.setPaymentId(paymentId); // If Order entity has this field
+        } else {
+            order.setStatus(Status.CANCELLED);
+        }
+        orderRepository.save(order);
+    }
 }
