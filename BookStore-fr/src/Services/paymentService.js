@@ -15,3 +15,10 @@ export const verifyPayment = async (data) => {
         headers: { Authorization: `Bearer ${token}` }
     });
 };
+
+export const getKey = async () => {
+    const token = localStorage.getItem("token");
+    return axios.get(`${API_URL}/key`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+};

@@ -251,7 +251,9 @@ const CartPage = () => {
 
                 // Parse Razorpay Order info (it returns stringified JSON or object depending on backend implementation)
                 // My backend returns order.toString(), which is stringified JSON.
-                const razorpayOrder = JSON.parse(paymentResponse.data);
+                const razorpayOrder = typeof paymentResponse.data === "string"
+                  ? JSON.parse(paymentResponse.data)
+                  : paymentResponse.data;
 
                 // Fetch Key from Backend
                 const keyResponse = await getKey();

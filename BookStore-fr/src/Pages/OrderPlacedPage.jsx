@@ -114,7 +114,9 @@ const OrderPlacedPage = () => {
     try {
       const amount = Math.round(finalTotal);
       const paymentResponse = await createRazorpayOrder(amount);
-      const razorpayOrder = JSON.parse(paymentResponse.data);
+      const razorpayOrder = typeof paymentResponse.data === "string"
+        ? JSON.parse(paymentResponse.data)
+        : paymentResponse.data;
 
       const keyResponse = await getKey();
       const key = keyResponse.data;
@@ -307,19 +309,21 @@ const OrderPlacedPage = () => {
             </button>
           )}
 
-          <button
-            onClick={downloadReceipt}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
-          >
-            DownloadReceipt
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={downloadReceipt}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
+            >
+              Download Receipt
+            </button>
 
-          <button
-            onClick={() => navigate("/orders")}
-            className="w-full bg-gray-100 hover:bg-gray-200 py-3 rounded-lg"
-          >
-            View My Orders
-          </button>
+            <button
+              onClick={() => navigate("/my-orders")}
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg"
+            >
+              View My Orders
+            </button>
+          </div>
 
 
 

@@ -39,8 +39,8 @@ const ShopPage = () => {
     const fetchData = async () => {
       try {
         const [genresRes, authorsRes] = await Promise.all([getGenres(), getAuthors()]);
-        setGenres(genresRes.data);
-        setAuthorsList(authorsRes.data);
+        setGenres(genresRes.data || []);
+        setAuthorsList(authorsRes.data || []);
       } catch (error) {
         console.error("Error fetching filters:", error);
       }
@@ -155,7 +155,7 @@ const ShopPage = () => {
           <div className="mb-4">
             <h3 className="font-semibold mb-2 font-serif text-primary">Authors</h3>
             <div className="flex flex-wrap gap-2">
-              {authorsList.map((a) => (
+              {Array.isArray(authorsList) && authorsList.map((a) => (
                 <div
                   key={a}
                   onClick={() => { setSelectedAuthor(a === selectedAuthor ? "" : a); setPage(0); }}

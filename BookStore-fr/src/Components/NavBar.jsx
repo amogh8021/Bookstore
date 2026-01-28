@@ -16,7 +16,7 @@ const NavBar = () => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        const email = decoded.sub; // backend should send email/username in 'sub'
+        const email = decoded.sub;
         setUserInitial(email.charAt(0).toUpperCase());
       } catch (err) {
         setUserInitial(null);
@@ -26,7 +26,7 @@ const NavBar = () => {
     }
   };
 
-  // Check token on mount + listen to login/logout events
+
   useEffect(() => {
     checkToken();
     window.addEventListener("login", checkToken);
@@ -108,7 +108,7 @@ const NavBar = () => {
                 <>
                   <div className="px-4 py-2 border-b border-gray-100 text-sm text-gray-500 mb-1">Account</div>
                   <Link to="/profile" className="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-700 transition font-medium">My Profile</Link>
-                  <Link to="/cart" className="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-700 transition font-medium">My Orders</Link>
+                  <Link to="/my-orders" className="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-700 transition font-medium">My Orders</Link>
                   <Link to="/wishlist" className="w-full text-left px-4 py-2 hover:bg-gray-50 text-gray-700 transition font-medium">Wishlist</Link>
 
                   <div className="border-t border-gray-100 my-1"></div>

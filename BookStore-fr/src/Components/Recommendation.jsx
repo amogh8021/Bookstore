@@ -18,7 +18,7 @@ const Recommendation = () => {
 
   const fetchBooks = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/book/list");
+      const response = await axios.get("http://localhost:8080/book");
       const booksArray = Array.isArray(response.data)
         ? response.data
         : response.data.content || [];
@@ -33,7 +33,7 @@ const Recommendation = () => {
   }, []);
 
 
- 
+
 
   // 📌 WISHLIST HANDLER
   const handleWishlist = async (book) => {
@@ -82,8 +82,8 @@ const Recommendation = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold mb-4">Recommendation for you</h1>
         <button
-        onClick={()=>navigate("/shop")}
-        className="hidden md:flex text-[#AD7D42] border border-[#AD7D42] px-4 py-2 rounded-2xl items-center gap-2 hover:bg-[#AD7D42] hover:text-white transition">
+          onClick={() => navigate("/shop")}
+          className="hidden md:flex text-[#AD7D42] border border-[#AD7D42] px-4 py-2 rounded-2xl items-center gap-2 hover:bg-[#AD7D42] hover:text-white transition">
           View All <IoIosArrowRoundForward className="text-2xl" />
         </button>
       </div>
@@ -107,13 +107,13 @@ const Recommendation = () => {
           {booksData.map((book) => (
             <SwiperSlide key={book.id}>
               <div
-              className="border-2 h-[400px] mx-auto rounded-xl shadow-md p-4 flex flex-col items-center mt-2 relative">
-                <img    
+                className="border-2 h-[400px] mx-auto rounded-xl shadow-md p-4 flex flex-col items-center mt-2 relative">
+                <img
                   src={book.imageUrl}
                   alt={book.title}
                   className="w-full h-56 object-cover rounded-md"
                   loading="lazy"
-                
+
                 />
 
                 <h2 className="mt-2 text-center text-xl font-medium text-gray-700 line-clamp-1">
@@ -124,7 +124,7 @@ const Recommendation = () => {
                 {/* ❤️ Wishlist + Share Buttons */}
                 <div className="absolute top-2 right-2 flex flex-col gap-2">
                   <button
-                  
+
                     className="bg-white p-2 rounded-full shadow-md hover:scale-110 hover:bg-pink-500 transition"
                     onClick={() => handleWishlist(book)}
                   >
@@ -148,11 +148,11 @@ const Recommendation = () => {
           ))}
         </Swiper>
       )}
-      
+
 
       <button
-      onClick={()=>navigate("/shop")}
-      className="flex md:hidden items-center justify-center bg-[#AD7D42] h-10 w-full text-white rounded-2xl mt-6">
+        onClick={() => navigate("/shop")}
+        className="flex md:hidden items-center justify-center bg-[#AD7D42] h-10 w-full text-white rounded-2xl mt-6">
         View All <IoIosArrowRoundForward className="ml-2 text-2xl" />
       </button>
     </div>
