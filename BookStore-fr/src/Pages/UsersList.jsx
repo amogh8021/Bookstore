@@ -1,25 +1,41 @@
 import React, { useEffect, useState } from "react";
 import AdminNavBar from "./AdminNavbar";
+import axios from "axios";
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchUsers = async (pageNumber = 0) => {
     try {
       setLoading(true);
+      setError(null);
       const token = localStorage.getItem("token");
       const res = await axios.get(
         `http://localhost:8080/api/v1/auth/users?page=${pageNumber}&size=10`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setUsers(res.data.content);
-      setPage(res.data.number);
-      setTotalPages(res.data.totalPages);
+
+      if (res.data && res.data.content) {
+        setUsers(res.data.content);
+        setPage(res.data.number);
+        setTotalPages(res.data.totalPages);
+      } else {
+        setUsers([]);
+      }
+
     } catch (err) {
-      console.log("Error fetching users:", err);
+      console.error("Error fetching users:", err);
+      const status = err.response ? err.response.status : "Unknown";
+      if (status === 403) {
+        setError("Access Denied (403). Please Log Out and Login again to refresh your Admin permissions.");
+      } else {
+        setError(`Failed to load users. Status: ${status}. Check console for details.`);
+      }
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -30,9 +46,9 @@ const UsersList = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-gray-50">
       <AdminNavBar />
-      <div className="flex-1 p-6 md:p-10">
+      <div className="p-6 md:p-10">
         <h1 className="text-3xl font-bold text-gray-800 mb-6 font-serif">All Users</h1>
 
         <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
@@ -56,6 +72,12 @@ const UsersList = () => {
                     <td className="p-4"><div className="h-6 bg-gray-200 rounded w-16"></div></td>
                   </tr>
                 ))
+              ) : error ? (
+                <tr>
+                  <td colSpan="4" className="text-center p-8 text-red-500 font-medium">
+                    {error}
+                  </td>
+                </tr>
               ) : users.length > 0 ? (
                 users.map((u) => (
                   <tr
@@ -68,10 +90,10 @@ const UsersList = () => {
                     <td className="p-4">
                       <span
                         className={`px-3 py-1 rounded-full text-white text-xs font-bold uppercase ${u.role === "ADMIN"
-                            ? "bg-red-500"
-                            : u.role === "USER"
-                              ? "bg-blue-500"
-                              : "bg-gray-500"
+                          ? "bg-red-500"
+                          : u.role === "USER"
+                            ? "bg-blue-500"
+                            : "bg-gray-500"
                           }`}
                       >
                         {u.role}

@@ -13,4 +13,4 @@ export const deleteBook = (id) => api.delete(`/book/${id}`);
 export const setFeatured = (id, featured) => api.put(`/book/${id}/featured`, null, { params: { featured } });
 
 export const getGenres = () => api.get('/book/genres');
-export const getAuthors = () => api.get('/book/authors');
+export const getAuthors = () => api.get('/api/v1/auth/users');

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import { GiHamburgerMenu, GiBookshelf } from "react-icons/gi";
 import { FaUserCircle, FaSearch, FaCartArrowDown, FaUsers } from "react-icons/fa";
@@ -20,6 +21,12 @@ const AdminNavBar = ({ searchValue, setSearchValue }) => {
   const toggleMobileSearch = () => {
     setMobileSearch(!mobileSearch);
     setOpen(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+    toast.success("Logged out successfully");
   };
 
   return (
@@ -190,10 +197,10 @@ const AdminNavBar = ({ searchValue, setSearchValue }) => {
       {/* User Dropdown */}
       {user && (
         <div className="absolute top-16 right-6 bg-white shadow-lg rounded-lg z-50 flex flex-col gap-2 items-start p-3 border border-gray-100">
-          <h1 className="cursor-pointer hover:text-purple-700 text-sm">
-            Profile
-          </h1>
-          <h1 className="cursor-pointer hover:text-purple-700 text-sm">
+          <h1
+            className="cursor-pointer hover:text-purple-700 text-sm"
+            onClick={handleLogout}
+          >
             Logout
           </h1>
         </div>

@@ -78,7 +78,7 @@ function App() {
             <Route path="/admin/orders/cancelled" element={<CancelledOrders />} />
             <Route path="/admin/orders/completed" element={<CompletedOrders />} />
             <Route path="/admin/books" element={<ListedBooks />} />
-            <Route path="/admin/genres" element={<Categories />} />
+            <Route path="/admin/categories" element={<Categories />} />
             <Route path="/admin/users" element={<UsersList />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/admin/authors" element={<ListedAuthor />} />

@@ -66,6 +66,8 @@ const Admin = () => {
     }
   };
 
+  const [recentOrders, setRecentOrders] = useState([]);
+
   // ================= FETCH DASHBOARD DATA =================
   useEffect(() => {
     const fetchStats = async () => {
@@ -74,6 +76,13 @@ const Admin = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStats(response.data);
+
+        // Fetch recent orders
+        const ordersRes = await axios.get("http://localhost:8080/orders/all?page=0&size=5", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setRecentOrders(ordersRes.data.content);
+
       } catch (error) {
         console.error("Error fetching stats:", error);
         toast.error("Failed to load dashboard data");
@@ -190,6 +199,52 @@ const Admin = () => {
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm text-gray-600"><span>Total:</span> <span className="font-semibold">{stats.totalOrders}</span></div>
             </div>
+          </div>
+        </div>
+
+        {/* ================= RECENT ORDERS ================= */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-gray-800 font-serif">Recent Orders</h3>
+            <button onClick={() => navigate("/admin/orders/total")} className="text-sm text-primary hover:underline font-medium">View All</button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {recentOrders.length > 0 ? (
+                  recentOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{order.id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.user?.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(order.orderDate).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">₹{order.totalPayable}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            ${order.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                            order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                              order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
+                          {order.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">No recent orders found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

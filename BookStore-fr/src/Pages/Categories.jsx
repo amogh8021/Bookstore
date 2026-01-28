@@ -18,10 +18,16 @@ const Categories = () => {
             },
           }
         );
-        setCategories(response.data);
+        if (Array.isArray(response.data)) {
+          setCategories(response.data);
+        } else {
+          console.error("Unexpected response structure:", response.data);
+          setCategories([]);
+        }
         setLoading(false);
       } catch (err) {
         console.error("Error fetching categories:", err);
+        setCategories([]);
         setLoading(false);
       }
     };
@@ -29,50 +35,52 @@ const Categories = () => {
     fetchCategories();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <h1 className="text-xl font-semibold">Loading categories...</h1>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminNavBar />
-      <div className="p-6">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">
+      <div className="p-6 md:p-10">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800 font-serif">
           Listed Categories
         </h1>
 
-        {categories.length > 0 ? (
-          <div className="overflow-x-auto bg-white rounded-lg shadow">
-            <table className="min-w-full border border-gray-300">
-              <thead>
-                <tr className="bg-gray-200 text-gray-700">
-                  <th className="p-3 border">#</th>
-                  <th className="p-3 border">Category Name</th>
-                </tr>
-              </thead>
+        <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category Name</th>
+              </tr>
+            </thead>
 
-              <tbody>
-                {categories.map((category, idx) => (
+            <tbody className="bg-white divide-y divide-gray-200">
+              {loading ? (
+                // Skeleton
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-6 py-4"><div className="h-4 bg-gray-200 rounded w-8"></div></td>
+                    <td className="px-6 py-4"><div className="h-4 bg-gray-200 rounded w-48"></div></td>
+                  </tr>
+                ))
+              ) : categories.length > 0 ? (
+                categories.map((category, idx) => (
                   <tr
                     key={idx}
-                    className="text-center border hover:bg-gray-50 transition"
+                    className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="p-3 border">{idx + 1}</td>
-                    <td className="p-3 border">{category}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{idx + 1}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{category}</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center text-gray-500 italic">
-            No categories found.
-          </div>
-        )}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="2" className="text-center px-6 py-8 text-gray-500 italic">
+                    No categories found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
