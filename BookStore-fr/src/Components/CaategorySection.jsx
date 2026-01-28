@@ -41,7 +41,7 @@ const CaategorySection = () => {
     const fetchGenres = async () => {
       try {
         const response = await axios.get("http://localhost:8080/book/genres");
-        setGenres(response.data); 
+        setGenres(response.data);
       } catch (error) {
         console.error("Error fetching genres:", error);
       }
@@ -63,17 +63,47 @@ const CaategorySection = () => {
           <div
             key={index}
             onClick={() => handleCategoryJump(genreName)}
-           className="
+            className="
   flex-shrink-0 w-40 bg-white
   border rounded-xl shadow-md
   transition-all duration-300
   hover:-translate-y-2 hover:shadow-xl
 ">
-            <img
-              src={genreImages[genreName] || fiction}
-              alt={genreName}
-              className="w-full h-28 object-cover rounded-t-lg"
-            />
+            {(() => {
+              const lowerGenre = genreName.toLowerCase();
+              let matchedImg = fiction; // Default fallback
+
+              // Specific mappings
+              if (lowerGenre.includes("history") || lowerGenre.includes("war") || lowerGenre.includes("ancient")) matchedImg = history;
+              else if (lowerGenre.includes("self") || lowerGenre.includes("motivat") || lowerGenre.includes("success")) matchedImg = self;
+              else if (lowerGenre.includes("child") || lowerGenre.includes("kid") || lowerGenre.includes("teen")) matchedImg = kids;
+              else if (lowerGenre.includes("comic") || lowerGenre.includes("graphic") || lowerGenre.includes("manga")) matchedImg = comics;
+
+              else if (lowerGenre.includes("science") || lowerGenre.includes("tech") || lowerGenre.includes("computer") || lowerGenre.includes("data") || lowerGenre.includes("prog")) matchedImg = tech;
+              else if (lowerGenre.includes("bio") || lowerGenre.includes("memoir")) matchedImg = bio;
+
+              else if (lowerGenre.includes("romance") || lowerGenre.includes("love")) matchedImg = romance;
+              else if (lowerGenre.includes("fantasy") || lowerGenre.includes("magic") || lowerGenre.includes("dragon")) matchedImg = fantasy;
+              else if (lowerGenre.includes("mystery") || lowerGenre.includes("thriller") || lowerGenre.includes("crime") || lowerGenre.includes("horror")) matchedImg = mystery;
+              else if (lowerGenre.includes("poetry") || lowerGenre.includes("verse")) matchedImg = poetry;
+
+              // Broad Non-Fiction
+              else if (lowerGenre.includes("non-fiction") || lowerGenre.includes("non fiction") ||
+                lowerGenre.includes("business") || lowerGenre.includes("finance") ||
+                lowerGenre.includes("travel") || lowerGenre.includes("cook") ||
+                lowerGenre.includes("food") || lowerGenre.includes("art") ||
+                lowerGenre.includes("design") || lowerGenre.includes("psychology") ||
+                lowerGenre.includes("phil") || lowerGenre.includes("relig") ||
+                lowerGenre.includes("edu")) matchedImg = nonfiction;
+
+              return (
+                <img
+                  src={matchedImg}
+                  alt={genreName}
+                  className="w-full h-28 object-cover rounded-t-lg"
+                />
+              );
+            })()}
             <h2 className="text-center text-sm font-semibold py-2">
               {genreName}
             </h2>

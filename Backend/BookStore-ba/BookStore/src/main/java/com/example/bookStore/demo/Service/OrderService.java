@@ -164,7 +164,7 @@ public class OrderService {
         Order order = getOrderById(orderId);
         if ("PAID".equalsIgnoreCase(status)) {
             order.setStatus(Status.COMPLETED); // Or CONFIRMED
-            // order.setPaymentId(paymentId); // If Order entity has this field
+            order.setPaymentId(paymentId);
         } else {
             order.setStatus(Status.CANCELLED);
         }

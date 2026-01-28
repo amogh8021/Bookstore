@@ -41,4 +41,5 @@ public class Order {
     private BigDecimal totalPayable;
 
     private String appliedCoupon;
+    private String paymentId;
 }
