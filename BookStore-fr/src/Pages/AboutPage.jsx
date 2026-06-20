@@ -1,6 +1,7 @@
 import React from "react";
 import { BookOpen, ShieldCheck, Code2, Sparkles, Mail } from "lucide-react";
 import NavBar from "../Components/NavBar";
+import DeveloperImage from "../Components/assets/developer.jpeg"
 
 /* -------------------- REUSABLE COMPONENTS -------------------- */
 
@@ -78,7 +79,7 @@ const AboutPage = () => {
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-accent to-primary"></div>
 
             <img
-              src="https://i.pravatar.cc/200?img=3"
+              src={DeveloperImage}
               alt="Developer"
               className="w-32 h-32 rounded-full mx-auto mb-6 object-cover ring-4 ring-gray-50 shadow-lg"
             />

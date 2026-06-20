@@ -10,6 +10,7 @@ import com.example.bookStore.demo.Jwt.JwtService;
 import com.example.bookStore.demo.Repository.UserRepository;
 import com.example.bookStore.demo.Security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -112,11 +114,13 @@ public class UserService {
     // ================= Send OTP =================
     public String sendOtpOnSignup(String email) {
         String cleanEmail = email.trim().toLowerCase();
+        log.info("Processing OTP request for email: {}", cleanEmail);
 
         User user = userRepository.findByEmail(cleanEmail).orElse(null);
 
         // If user exists AND already completed signup
         if (user != null && user.getPassword() != null) {
+            log.warn("Signup attempt with already registered email: {}", cleanEmail);
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "Email already registered"
@@ -125,6 +129,7 @@ public class UserService {
 
         // If user does not exist → create email-only user
         if (user == null) {
+            log.info("Creating new user record for email: {}", cleanEmail);
             user = User.builder()
                     .email(cleanEmail)
                     .role(Role.USER)
@@ -138,9 +143,19 @@ public class UserService {
         user.setExpire_verifyOtp_at(LocalDateTime.now().plusMinutes(10));
 
         userRepository.save(user);
-        emailService.SendOtpOnSignup(cleanEmail, otp);
-
-        return "OTP sent successfully";
+        log.info("Generated and saved OTP for email: {}", cleanEmail);
+        
+        try {
+            emailService.SendOtpOnSignup(cleanEmail, otp);
+            log.info("OTP email service call completed for: {}", cleanEmail);
+            return "OTP sent successfully";
+        } catch (Exception e) {
+            log.error("Failed to send OTP email for: {}. Error: {}", cleanEmail, e.getMessage(), e);
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to send OTP email: " + e.getMessage()
+            );
+        }
     }
 
     // ================= Verify OTP =================

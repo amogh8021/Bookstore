@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 
 @RequiredArgsConstructor
@@ -50,13 +51,16 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-
     @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+    public ResponseEntity<String> verifyOtp(
+            @RequestBody Map<String, String> request) {
+
+        String email = request.get("email");
+        String otp = request.get("otp");
+
         String response = userService.verifySignupOtp(email, otp);
         return ResponseEntity.ok(response);
     }
-
 
 
     @PostMapping("/login")
